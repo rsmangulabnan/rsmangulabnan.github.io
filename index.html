@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Rey WebGL Demo</title>
+        <style>
+            body { 
+                margin: 0; 
+                background: linear-gradient(180deg, #d53369 0%, #daae51 100%);
+            }
+            h1 {
+                color: white;
+                margin-left: 40px;
+                font-family: Arial;
+                font-size: 30;
+                position:fixed;
+                top:10px; 
+                left:25px;
+            }
+            p {
+                color: white;
+                margin-left: 40px;
+                font-family: Arial;
+                font-size: 30;
+                position:fixed;
+                top:80px; 
+                left:25px;
+            }   
+        </style>
+    </head>
+    <body>
+        <h1>REYMOND MANGULABNAN</h1>
+        <p>CLICK and DRAG to rotate Camera<br/>
+        SCROLL to zoom in and out</p>
+        
+        <script src="js/three.js"></script> <!--for webgl implementation-->
+        <script src="js/threex.domevents.js"></script> <!--for mouse events-->
+        <script src="js/OrbitControls.js"></script> <!--for camera controls-->
+        <script src="js/partykals.js"></script> <!--for particles-->
+        
+        <script>
+            //Set Up Scene
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+            camera.position.z = 5;
+            
+            //Add some lights
+            const ambientLight = new THREE.AmbientLight( 0x404040 ); //Soft White Light
+            scene.add( ambientLight );
+            
+            const pointLight = new THREE.PointLight( 0xffffff, 1, 100 ); //For added flare
+            pointLight.position.set( 4, 4, 8 );
+            scene.add( pointLight );
+            
+            //Some useful vars
+            let cubeSpeed = 0.01;
+            let sphereSpeed = 0.01;
+            
+            //Load Textures
+            const ttr_marble = new THREE.TextureLoader().load( 'img/marble.png' );
+            const ttr_tiles = new THREE.TextureLoader().load( 'img/tiles.jpg' );
+            const ttr_star = new THREE.TextureLoader().load( 'img/star.png' );
+           
+            //Create Materials
+            const mtr_marble = new THREE.MeshPhongMaterial( { 
+                map: ttr_marble,
+                shininess: 100
+            } );
+            const mtr_tiles = new THREE.MeshPhongMaterial( { 
+                map: ttr_tiles,
+                shininess: 100
+            } );
+            
+            //Create Objects
+            const geo_sphere = new THREE.SphereGeometry( 1, 32, 32 );
+            const sphere = new THREE.Mesh( geo_sphere, mtr_marble );
+            sphere.position.x = -2;
+            scene.add( sphere );
+            
+            const geo_cube = new THREE.BoxGeometry(1.5,1.5,1.5);
+            const cube = new THREE.Mesh( geo_cube, mtr_tiles );
+			cube.position.x = 2;
+            scene.add( cube );
+            
+            //Initialize Particles
+            let cubeParticle= new myParticle();
+            let sphereParticle= new myParticle();
+            
+            
+            //Add Camera interaction
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            
+            //Animation Loop
+            const animate = function () {
+				requestAnimationFrame( animate );
+
+				cube.rotation.x += cubeSpeed;
+				cube.rotation.y += cubeSpeed;
+                  
+                sphere.rotation.x += sphereSpeed;
+				sphere.rotation.y += sphereSpeed;
+                
+                sphereParticle.update();
+                cubeParticle.update();
+				renderer.render( scene, camera );
+			};
+            
+            //Particle Object
+            function myParticle(){
+                let systemIn = new Partykals.ParticlesSystem({
+                    container: scene,
+                    particles: {
+                        startAlpha: 1,
+                        endAlpha: 0,
+                        startSize: new Partykals.Randomizers.MinMaxRandomizer(1, 2),
+                        endSize: new Partykals.Randomizers.MinMaxRandomizer(10, 20),
+                        ttl: 1,
+                        velocity: new Partykals.Randomizers.SphereRandomizer(3, 2),
+                        blending: "additive",
+                        worldPosition: true,
+                        rotation: new Partykals.Randomizers.MinMaxRandomizer(0, 6.28319),
+                        rotationSpeed: new Partykals.Randomizers.MinMaxRandomizer(-10, 10),
+                        texture: ttr_star,
+                    },
+                    system: {
+                        particlesCount: 100,
+                        scale: 10,
+                        depthWrite: false,
+                        speed: 1,
+                    }
+                });
+                return systemIn;
+            }
+            
+            //Add Mouse Events
+            const domEvents = new THREEx.DomEvents(camera, renderer.domElement)
+            domEvents.addEventListener(sphere, 'mouseover', event => {
+                let sphereEmitter = new Partykals.Emitter({onSpawnBurst : 100});
+                sphereParticle.particleSystem.position.x = sphere.position.x;
+                sphereParticle.addEmitter(sphereEmitter);
+                sphereSpeed = 0.08;
+            });
+            
+            domEvents.addEventListener(sphere, 'mouseout', event => {
+                sphereSpeed = 0.01;
+            })
+            
+            domEvents.addEventListener(cube, 'mouseover', event => {
+                let cubeEmitter = new Partykals.Emitter({onSpawnBurst : 100});
+                cubeParticle.particleSystem.position.x = cube.position.x;
+                cubeParticle.addEmitter(cubeEmitter);
+                cubeSpeed = 0.08;
+            });
+            
+            domEvents.addEventListener(cube, 'mouseout', event => {
+                cubeSpeed = 0.01;
+            })
+            
+            
+            animate();
+        </script>
+    </body>
+</html>
