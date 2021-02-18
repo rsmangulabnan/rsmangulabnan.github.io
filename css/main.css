@@ -1,0 +1,139 @@
+:root {
+  --main-radius: 5px;
+  --sub-radius: 5px;
+  --box-padding: 10px;
+    
+}
+body {
+  font-family: "Inter", sans-serif;
+}
+h3{
+    margin-bottom: -8px;
+    color: #E31837;
+}
+h4{
+    margin: 0px;
+    font-size: 20;
+}
+img{
+    width: 100%;
+    height: auto;
+}
+#outputPage{
+    display:none;
+    background-color: white;
+}
+
+.grid-container {
+    display: grid;
+    text-align: center;
+    height: auto;
+    grid-template-rows: 50px 30px *;
+}
+#comapany-logo {
+    margin: auto;
+    background-color: white;
+    width: auto;
+}
+#order-message{
+    font-size: 25px;
+    text-indent:10%;
+    text-align: left;
+    font-weight: bold;
+    color: #E31837;
+}
+
+.grid-orders{
+    display: grid;
+    grid-gap: 1rem;
+}
+
+.pizza-card{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    
+    grid-template-areas:
+        "num head head"
+        "topp topp topp"
+        "topp0 topp1 topp2";
+    grid-gap: 0.2rem;
+    background-color: #006491;
+    padding: 10px;
+    width: 80%;
+    margin: 0 auto;
+    border-radius: var(--main-radius);
+}
+
+.num{
+    grid-area: num;
+    background: white;
+    font-size: 70px;
+    vertical-align: middle;
+    font-weight: bold;
+    color: #006491;
+    padding: var(--box-padding);
+    border-radius: var(--sub-radius);
+}
+
+.head{
+    grid-area: head;
+    background: white;
+    text-align: left;
+    text-transform: uppercase;
+    padding: var(--box-padding);
+    border-radius: var(--sub-radius);
+}
+
+.topp{
+    grid-area: topp;
+    background: #58DCE0;
+    padding: var(--box-padding);
+    border-radius: var(--sub-radius);
+}
+
+.topp0{
+    grid-area: topp0;
+    background: #58DCE0;
+    text-align: left;
+    padding: var(--box-padding);
+    
+}
+
+.topp1{
+    grid-area: topp1;
+    background: #58DCE0;
+    text-align: left;
+    padding: var(--box-padding);
+    
+}
+
+.topp2{
+    grid-area: topp2;
+    background: #58DCE0;
+    text-align: left;
+    padding: var(--box-padding);
+    
+}
+
+@media all and (max-width: 500px) {
+  .pizza-card{
+    display: grid;    
+    grid-template-areas:
+        "num head head"
+        "topp topp topp"
+        "topp0 topp0 topp0"
+        "topp1 topp1 topp1"
+        "topp2 topp2 topp2";
+
+    }
+    #order-message{
+        font-size: 20px;
+        text-align: center;
+        text-indent:0;
+    }
+}
+
+
+    
+   
+

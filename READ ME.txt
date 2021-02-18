@@ -1,4 +1,0 @@
-Please make sure to run it on a local server for the textures to work. 
-Due to browsers' same origin policy security restrictions, loading from a file system will fail with a security exception.
-This will affect the loading of the texture files.
-
