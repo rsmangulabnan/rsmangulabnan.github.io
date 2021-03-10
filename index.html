@@ -1,71 +1,166 @@
-<!doctype html>
-<html class="no-js" lang="">
-
-<head>
-    <meta charset="utf-8">
-    <title></title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta property="og:title" content="">
-    <meta property="og:type" content="">
-    <meta property="og:url" content="">
-    <meta property="og:image" content="">
-    
-    <link href="https://fonts.googleapis.com/css?family=Inter:400,800,900&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="css/main.css">
-
-    <meta name="theme-color" content="#fafafa">
-</head>
-
-<body>
-    
-    <div id="inputPage">
-        <textarea id="orderInput" rows="30" cols="50">
-        {order number="123"}
-         {pizza number ="1"}
-           {size}large{\size}
-           {crust}hand-tossed{\crust}
-           {type}custom{\type}
-           {toppings area="0"}
-             {item}pepperoni{\item}
-              {item}extra cheese{\item}
-            {\toppings}
-            {toppings area="1"}
-             {item}sausage{\item}
-            {\toppings}
-            {toppings area="2"}
-             {item}mushrroms{\item}
-              {item}extra cheese{\item}
-            {\toppings}
-         {\pizza}
-
-         {pizza number ="2"}
-           {size}medium{\size}
-           {crust}deep dish{\crust}
-           {type}pepperoni feast{\type}
-         {\pizza}
-            {\order}
-            
-        </textarea> 
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Rey WebGL Demo</title>
+        <style>
+            body { 
+                margin: 0; 
+                background: linear-gradient(180deg, #d53369 0%, #daae51 100%);
+            }
+            h1 {
+                color: white;
+                margin-left: 40px;
+                font-family: Arial;
+                font-size: 30;
+                position:fixed;
+                top:10px; 
+                left:25px;
+            }
+            p {
+                color: white;
+                margin-left: 40px;
+                font-family: Arial;
+                font-size: 30;
+                position:fixed;
+                top:80px; 
+                left:25px;
+            }   
+        </style>
+    </head>
+    <body>
+        <h1>REYMOND MANGULABNAN</h1>
+        <p>CLICK and DRAG to rotate Camera<br/>
+        SCROLL to zoom in and out<br/>
+        More of my work @ <a href="https://sites.google.com/view/reymangulabnan">https://sites.google.com/view/reymangulabnan</a></p>
         
-        <div id="btn-container">
-            <button type="button" onclick="showExamOutput()">Show Exam Output</button>
-        </div>
-    </div>
-    
-    <div id="outputPage">
-        <div class="grid-container">
-            <div id="comapany-logo"><img src="img/logo.png" alt="Logo"></div>
-            <div id="order-message">We have an Order!</div>
-            <div id="order-container"></div>
-        </div>
-    </div>
-    
-    <script src="js/jquery-3.5.1.min.js"></script>
-    <script src="js/main.js"></script>
-    
-</body>
+        <script src="js/three.js"></script> <!--for webgl implementation-->
+        <script src="js/threex.domevents.js"></script> <!--for mouse events-->
+        <script src="js/OrbitControls.js"></script> <!--for camera controls-->
+        <script src="js/partykals.js"></script> <!--for particles-->
+        
+        <script>
+            //Set Up Scene
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+            camera.position.z = 5;
+            
+            //Add some lights
+            const ambientLight = new THREE.AmbientLight( 0x404040 ); //Soft White Light
+            scene.add( ambientLight );
+            
+            const pointLight = new THREE.PointLight( 0xffffff, 1, 100 ); //For added flare
+            pointLight.position.set( 4, 4, 8 );
+            scene.add( pointLight );
+            
+            //Some useful vars
+            let cubeSpeed = 0.01;
+            let sphereSpeed = 0.01;
+            
+            //Load Textures
+            const ttr_marble = new THREE.TextureLoader().load( 'img/marble.png' );
+            const ttr_tiles = new THREE.TextureLoader().load( 'img/tiles.jpg' );
+            const ttr_star = new THREE.TextureLoader().load( 'img/star.png' );
+           
+            //Create Materials
+            const mtr_marble = new THREE.MeshPhongMaterial( { 
+                map: ttr_marble,
+                shininess: 100
+            } );
+            const mtr_tiles = new THREE.MeshPhongMaterial( { 
+                map: ttr_tiles,
+                shininess: 100
+            } );
+            
+            //Create Objects
+            const geo_sphere = new THREE.SphereGeometry( 1, 32, 32 );
+            const sphere = new THREE.Mesh( geo_sphere, mtr_marble );
+            sphere.position.x = -2;
+            scene.add( sphere );
+            
+            const geo_cube = new THREE.BoxGeometry(1.5,1.5,1.5);
+            const cube = new THREE.Mesh( geo_cube, mtr_tiles );
+			cube.position.x = 2;
+            scene.add( cube );
+            
+            //Initialize Particles
+            let cubeParticle= new myParticle();
+            let sphereParticle= new myParticle();
+            
+            
+            //Add Camera interaction
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            
+            //Animation Loop
+            const animate = function () {
+				requestAnimationFrame( animate );
 
+				cube.rotation.x += cubeSpeed;
+				cube.rotation.y += cubeSpeed;
+                  
+                sphere.rotation.x += sphereSpeed;
+				sphere.rotation.y += sphereSpeed;
+                
+                sphereParticle.update();
+                cubeParticle.update();
+				renderer.render( scene, camera );
+			};
+            
+            //Particle Object
+            function myParticle(){
+                let systemIn = new Partykals.ParticlesSystem({
+                    container: scene,
+                    particles: {
+                        startAlpha: 1,
+                        endAlpha: 0,
+                        startSize: new Partykals.Randomizers.MinMaxRandomizer(1, 2),
+                        endSize: new Partykals.Randomizers.MinMaxRandomizer(10, 20),
+                        ttl: 1,
+                        velocity: new Partykals.Randomizers.SphereRandomizer(3, 2),
+                        blending: "additive",
+                        worldPosition: true,
+                        rotation: new Partykals.Randomizers.MinMaxRandomizer(0, 6.28319),
+                        rotationSpeed: new Partykals.Randomizers.MinMaxRandomizer(-10, 10),
+                        texture: ttr_star,
+                    },
+                    system: {
+                        particlesCount: 100,
+                        scale: 10,
+                        depthWrite: false,
+                        speed: 1,
+                    }
+                });
+                return systemIn;
+            }
+            
+            //Add Mouse Events
+            const domEvents = new THREEx.DomEvents(camera, renderer.domElement)
+            domEvents.addEventListener(sphere, 'mouseover', event => {
+                let sphereEmitter = new Partykals.Emitter({onSpawnBurst : 100});
+                sphereParticle.particleSystem.position.x = sphere.position.x;
+                sphereParticle.addEmitter(sphereEmitter);
+                sphereSpeed = 0.08;
+            });
+            
+            domEvents.addEventListener(sphere, 'mouseout', event => {
+                sphereSpeed = 0.01;
+            })
+            
+            domEvents.addEventListener(cube, 'mouseover', event => {
+                let cubeEmitter = new Partykals.Emitter({onSpawnBurst : 100});
+                cubeParticle.particleSystem.position.x = cube.position.x;
+                cubeParticle.addEmitter(cubeEmitter);
+                cubeSpeed = 0.08;
+            });
+            
+            domEvents.addEventListener(cube, 'mouseout', event => {
+                cubeSpeed = 0.01;
+            })
+            
+            
+            animate();
+        </script>
+    </body>
 </html>
